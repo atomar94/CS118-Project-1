@@ -40,7 +40,7 @@ HTTP_Req::HTTP_Req(std::string req)
             continue;
         else if( parse_connection(*it) == 0)
             continue;
-        else if( *it != "")
+        else if( (*it).length() > 3)
             cout << "Found no field match for " + *it << endl;
 
     }//for
@@ -58,6 +58,8 @@ int HTTP_Req::parse_req_type(string h)
 
         return -1;
     }
+    // the find() method is deleting my data inside h here. this causes massive issues so we
+    // arent going to do this check.
    /* if( h.find("GET") != string::npos || h.find("POST") != string::npos)
     {
         cout << "string: " <<  h << " does not contian GET or POST" << endl;
@@ -121,14 +123,21 @@ int HTTP_Req::parse_accept(string s)
     if(accept_tag != "Accept: ")
         return -1;
     
-    if( s.find("text/html") != string::npos )
+    else if( s.find("text/html") != string::npos || path.find(".html") != string::npos )
     {
         accept_html = true;
     }
-    else if( s.find("image/jpeg") != string::npos )
+    else if( s.find("image/jpeg") != string::npos || path.find(".jpeg") != string::npos 
+            || path.find(".jpg") != string::npos )
     {
         accept_jpeg = true;
     }
+    else if( s.find("*/*") != string::npos )
+    {
+        accept_html = true;
+        accept_jpeg = true;
+    }
+
     return 0;
 }
 

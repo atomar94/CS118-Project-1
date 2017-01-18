@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
         //printf("%s\n",buffer);
 
         cout << " ----- ----- ----- " << endl;
-
+        cout << " ----- ----- ----- " << endl;
+        cout << "Request" << endl;
         cout << "Request " << counter << endl;
         cout << "Parser Identified Fields:" << endl;
         cout << "Type:\t" << req.get_type() << endl;
@@ -95,7 +96,6 @@ int main(int argc, char *argv[])
         cout << "Conn.\t" << req.get_connection() << endl;
 
         cout << " ----- ----- -----" << endl;
-
         //Form Response
         string msg_body;
         string status_code;
@@ -117,6 +117,12 @@ int main(int argc, char *argv[])
         
         response = res.form_res_pkt(req.get_version(), status_code, 
                 reason_phrase, msg_body, req.mime());
+
+
+        cout << "Response" << endl;
+        cout << "Version: " << req.get_version() << endl;
+        cout << "Status_Code: " << status_code << " " << reason_phrase << endl;
+        cout << "Content-Type: " << req.mime() << endl;
 
         //reply to client
    	    n = write(newsockfd, response.c_str(), response.length());
