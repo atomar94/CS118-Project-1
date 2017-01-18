@@ -14,7 +14,8 @@ class file_fetcher
     public:
         bool exists(string f);
         string read(string f);
-
+        bool valid_type(string f);
+    
     private:
         string get_cwd();        
 };

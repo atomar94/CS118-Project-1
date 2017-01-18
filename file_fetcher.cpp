@@ -37,6 +37,18 @@ string file_fetcher::read(string f)
     return ss.str();
 }
 
+bool file_fetcher::valid_type(string f)
+{
+    if(f.find(".jpg") != string::npos ||
+       f.find(".jpeg") != string::npos ||
+       f.find(".gif") != string::npos ||
+       f.find(".html") != string::npos)
+    {
+        return true;
+    }
+    else { return false; }
+}
+
 string file_fetcher::get_cwd()
 {
     char buf[256];
