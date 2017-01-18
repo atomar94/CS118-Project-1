@@ -33,6 +33,7 @@ class HTTP_Req
 
         bool accept_html;
         bool accept_jpeg;
+        bool accept_gif;
 
         string accepted_lang;
         string accepted_encoding;

@@ -12,6 +12,7 @@ HTTP_Req::HTTP_Req(std::string req)
     //Variable Initialization
     accept_jpeg = false;
     accept_html = false;
+    accept_gif = false;
 
     // HTTP Parsing
     list<string> lines = split(req, '\n');
@@ -132,10 +133,15 @@ int HTTP_Req::parse_accept(string s)
     {
         accept_jpeg = true;
     }
+    else if( s.find("image/gif") != string::npos || path.find(".gif") != string::npos)
+    {
+        accept_gif = false;
+    }
     else if( s.find("*/*") != string::npos )
     {
         accept_html = true;
         accept_jpeg = true;
+        accept_gif = true;
     }
 
     return 0;
