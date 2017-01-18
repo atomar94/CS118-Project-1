@@ -9,45 +9,40 @@ using namespace std;
 
 HTTP_Req::HTTP_Req(std::string req)
 {
+    //Variable Initialization
+    accept_jpeg = false;
+    accept_html = false;
+
+    // HTTP Parsing
     list<string> lines = split(req, '\n');
 
     list<string>::iterator it;
     int i = 0;
+    //todo change switch to loop and check everything so that if
+    //a header is out of order or had additional fieldswe will 
+    //match it anyway
     for(it = lines.begin(); it != lines.end(); it++, i++)
     {
-        switch(i)
-        {
-            case 0:
-                if(parse_req_type(*it) == -1)
-                    cout << "http_req: bad req type" << endl;
-                break;
-            case 1:
-                if(parse_host(*it) == -1)
-                    cout << "http_req: bad host" << endl;
-                break;
-            case 2:
-                if( parse_user_agent(*it) == -1)
-                    cout << "http_req: bad user agent" << endl;
-                break;
-            case 3:
-                if( parse_accept(*it) == -1)
-                    cout << "http_req: bad accepted types" << endl;
-                break;
-            case 4:
-                if( parse_accept_lang(*it) == -1)
-                    cout << "http_req: bad accepted language" << endl;
-                break;
-            case 5:
-                if( parse_accept_encoding(*it) == -1)
-                    cout << "http_req: bad encoding" << endl;
-                break;
-            case 6:
-                if( parse_connection(*it) == -1)
-                    cout << "http_req: bad connection" << endl;
-                break;
-            default:
-                cout << "HTTP_Req found extra fields." << endl;
-        } //switch
+        if(i == 0) {
+
+            parse_req_type(*it);
+            continue;
+        }
+        else if(parse_host(*it) == 0)
+            continue;
+        else if( parse_user_agent(*it) == 0)
+            continue;
+        else if( parse_accept(*it) == 0)
+            continue;
+        else if( parse_accept_lang(*it) == 0)
+            continue;
+        else if( parse_accept_encoding(*it) == 0)
+            continue;
+        else if( parse_connection(*it) == 0)
+            continue;
+        else if( *it != "")
+            cout << "Found no field match for " + *it << endl;
+
     }//for
 } //ctor
 
@@ -56,22 +51,31 @@ HTTP_Req::HTTP_Req(std::string req)
  * */
 int HTTP_Req::parse_req_type(string h)
 {
+
     list<string> fields = split(h, ' ');
     if(fields.size() != 3) //GET-or-POST, path, http-type
     {
-        //cout << "Bad header size" << endl;
+
         return -1;
     }
+   /* if( h.find("GET") != string::npos || h.find("POST") != string::npos)
+    {
+        cout << "string: " <<  h << " does not contian GET or POST" << endl;
+        return -1;
+    }*/
     int i = 0;
     for(list<string>::iterator it = fields.begin(); it != fields.end(); it++, i++)
     {
         switch(i)
         {
             case 0: if( *it == "GET" || *it == "POST")
+                    {
                         req_type = *it;
+
+                    }
                     else
                     {
-                        cout << "Invalid request type. Got: " << *it << endl; 
+
                         req_type = "invalid";
                     }
                     break;
@@ -112,15 +116,19 @@ int HTTP_Req::parse_user_agent(string s)
 
 int HTTP_Req::parse_accept(string s)
 {
-    accept_html = false;
     int taglen = 8;
     string accept_tag = s.substr(0, taglen);
     if(accept_tag != "Accept: ")
         return -1;
     
     if( s.find("text/html") != string::npos )
+    {
         accept_html = true;
-
+    }
+    else if( s.find("image/jpeg") != string::npos )
+    {
+        accept_jpeg = true;
+    }
     return 0;
 }
 
@@ -139,6 +147,7 @@ int HTTP_Req::parse_accept_lang(string s)
 
 }
 
+
 int HTTP_Req::parse_accept_encoding(string s)
 {
     int taglen = 17;
@@ -152,6 +161,8 @@ int HTTP_Req::parse_accept_encoding(string s)
 
 
 }
+
+
 int HTTP_Req::parse_connection(string s)
 {
     int taglen = 12;
@@ -165,6 +176,7 @@ int HTTP_Req::parse_connection(string s)
 
 
 }
+
 
 //getters
 string HTTP_Req::get_type()
@@ -197,6 +209,18 @@ string HTTP_Req::get_encoding()
 
 string HTTP_Req::get_connection()
 { return connection; }
+
+//getter for content-type
+string HTTP_Req::mime()
+{
+    if(accept_html)
+        return "text/html";
+    if(accept_jpeg)
+        return "image/jpeg";
+    else
+        return "";
+}
+
 
 //note that delim is a char, not a char string, not a std::string
 std::list<string> HTTP_Req::split(string str, char delim)

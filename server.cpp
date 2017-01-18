@@ -115,7 +115,8 @@ int main(int argc, char *argv[])
             reason_phrase = "Not Found";
         }
         
-        response = res.form_res_pkt(req.get_version(), status_code, reason_phrase, msg_body);
+        response = res.form_res_pkt(req.get_version(), status_code, 
+                reason_phrase, msg_body, req.mime());
 
         //reply to client
    	    n = write(newsockfd, response.c_str(), response.length());

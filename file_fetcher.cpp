@@ -16,9 +16,7 @@ bool file_fetcher::exists(string f)
 
     ifstream ifs(f.c_str());
     bool retval = ifs.good();
-    if(retval)
-        cout << f << " exists" << endl;
-    else
+    if(!retval)
         cout << f << " doesn't exist"<< endl;
     return ifs.good();
 }

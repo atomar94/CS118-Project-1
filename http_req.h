@@ -20,8 +20,9 @@ class HTTP_Req
         string get_lang();
         string get_encoding();
         string get_connection();
-
-
+        string mime(); //get mime type
+        
+ 
     private:
 
         string req_type;
@@ -31,6 +32,7 @@ class HTTP_Req
         string user_agent;
 
         bool accept_html;
+        bool accept_jpeg;
 
         string accepted_lang;
         string accepted_encoding;
