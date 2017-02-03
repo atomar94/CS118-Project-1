@@ -39,6 +39,9 @@ string file_fetcher::read(string f)
 
 bool file_fetcher::valid_type(string f)
 {
+    if(f == "/")
+        f = "index.html";
+    
     if(f.find(".jpg") != string::npos ||
        f.find(".jpeg") != string::npos ||
        f.find(".gif") != string::npos ||

@@ -11,6 +11,7 @@
 #include <strings.h>
 #include <sys/wait.h>	/* for the waitpid() system call */
 #include <signal.h>	/* signal name macros, and the kill() prototype */
+#include <errno.h>
 
 #include <unistd.h>
 #include <cstring>
@@ -30,17 +31,20 @@ void error(std::string msg)
 
 int main(int argc, char *argv[])
 {
-     int sockfd, newsockfd, portno, pid;
-     socklen_t clilen;
-     struct sockaddr_in serv_addr, cli_addr;
+    int sockfd, newsockfd, portno, pid;
+    socklen_t clilen;
+    struct sockaddr_in serv_addr, cli_addr;
 
-     if (argc < 2) {
+    if (argc < 2) {
          fprintf(stderr,"ERROR, no port provided\n");
          exit(1);
-     }
-     sockfd = socket(AF_INET, SOCK_STREAM, 0);	//create socket
-     if (sockfd < 0) 
-        error("ERROR opening socket");
+    }
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);	//create socket
+    if (sockfd < 0) 
+    {
+        printf("Error opening socket: %s", strerror(errno));
+        exit(1);
+    }
      memset((char *) &serv_addr, 0, sizeof(serv_addr));	//reset memory
      //fill in address info
      portno = atoi(argv[1]);
@@ -61,12 +65,19 @@ int main(int argc, char *argv[])
     int counter = 0;
     while(true) {
 
-         //accept connections
-         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-         
+        for(int n = 0; n < 5; n++)
+        {
+            //accept connections
+            newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+            if(newsockfd > 0)
+                break;
+        }
         if (newsockfd < 0) 
-           error("ERROR on accept");
-         
+        {
+            printf("Error on Accept: %s", strerror(errno));
+            close(sockfd);
+            exit(1);
+        }
         int n;
    	    char buffer[512];
    			 
@@ -102,6 +113,13 @@ int main(int argc, char *argv[])
         string reason_phrase;
         string response;
 
+
+        if( ! ff.valid_type(req.get_path() ) )
+        {
+            msg_body = "";
+            status_code = "403";
+            reason_phrase = "Forbidden";
+        }
         if( ff.exists( req.get_path() ) )
         {
             msg_body = ff.read(req.get_path());
@@ -115,6 +133,8 @@ int main(int argc, char *argv[])
             reason_phrase = "Not Found";
         }
         
+
+
         response = res.form_res_pkt(req.get_version(), status_code, 
                 reason_phrase, msg_body, req.mime());
 
