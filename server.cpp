@@ -145,12 +145,6 @@ int main(int argc, char *argv[])
         response = res.form_res_pkt(req.get_version(), status_code, 
                 reason_phrase, msg_body, req.mime());
 
-
-        cout << "Response" << endl;
-        cout << response << endl;
-
-
-
         //reply to client
    	    n = write(newsockfd, response.c_str(), response.length());
    	    if (n < 0) error("ERROR writing to socket");

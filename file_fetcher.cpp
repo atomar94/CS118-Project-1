@@ -10,7 +10,7 @@ using namespace std;
 bool file_fetcher::exists(string f)
 {
     if( f == "/")
-        f = "index.html";
+        f = "/index.html";
 
     f = get_cwd() + f;
 
@@ -24,7 +24,7 @@ bool file_fetcher::exists(string f)
 string file_fetcher::read(string f)
 {
     if( f == "/" )
-        f = "index.html";
+        f = "/index.html";
 
 
     if( !exists(f) )
