@@ -121,21 +121,21 @@ int main(int argc, char *argv[])
         string response;
 
 
-        if( ! ff.valid_type(req.get_path() ) )
+       if( ff.exists( req.get_path() ) )
         {
-            msg_body = "";
-            status_code = "403";
-            reason_phrase = "Forbidden";
-        }
-        if( ff.exists( req.get_path() ) )
-        {
-            msg_body = ff.read(req.get_path());
+            msg_body = ff.read(req.get_path()); //okay: 202
             status_code = "202"; //accepted
             reason_phrase = "Accepted";
         }
-        else
+       if( ! ff.valid_type(req.get_path() ) ) //wrong type: 403
         {
-            msg_body = "";
+            msg_body = "403 - Forbidden";
+            status_code = "403";
+            reason_phrase = "Forbidden";
+        }
+       if(!ff.exists(req.get_path())) //doesnt exist: 404
+        {
+            msg_body = "404, File not Found";
             status_code = "404";
             reason_phrase = "Not Found";
         }
@@ -147,9 +147,9 @@ int main(int argc, char *argv[])
 
 
         cout << "Response" << endl;
-        cout << "Version: " << req.get_version() << endl;
-        cout << "Status_Code: " << status_code << " " << reason_phrase << endl;
-        cout << "Content-Type: " << req.mime() << endl;
+        cout << response << endl;
+
+
 
         //reply to client
    	    n = write(newsockfd, response.c_str(), response.length());

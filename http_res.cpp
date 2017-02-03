@@ -26,14 +26,21 @@ string HTTP_Res::form_header(string http_version, string status_code,
                              string reason_phrase, string content_type,
                              int content_len)
 {
+    bool valid = true;
+    if(status_code != "404" && status_code != "403")
+        valid = false; //error so the resp pkt is a bit different
+
     string retval;
     retval += http_version + " ";
     retval += status_code + " ";
     retval += reason_phrase + "\r\n";
     retval += "Connection: close\r\n";
-    retval += "Content-Type: "+ content_type + "\r\n";
+
+    if(!valid)
+        retval += "Content-Type: "+ content_type + "\r\n";
     retval += "Date: Fri, 3 Feb 2017 01:01:01 GMT\r\n";
-    retval += "Content-Length: " + patch::to_string(content_len) + "\r\n";
+    if(!valid)
+        retval += "Content-Length: " + patch::to_string(content_len) + "\r\n";
 
     return retval;
 }
