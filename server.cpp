@@ -53,11 +53,16 @@ int main(int argc, char *argv[])
      serv_addr.sin_port = htons(portno);
      
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
-              sizeof(serv_addr)) < 0) 
+              sizeof(serv_addr)) < 0)
+     { 
               error("ERROR on binding");
-     
-     listen(sockfd,5);	//5 simultaneous connection at most
-
+              exit(1);
+     }
+     if(listen(sockfd,5) != 0)    //5 simultaneous connection at most
+     {
+        error("Listen had an error");
+        exit(1);
+     }
 
 
     file_fetcher ff;
@@ -65,16 +70,18 @@ int main(int argc, char *argv[])
     int counter = 0;
     while(true) {
 
-        for(int n = 0; n < 5; n++)
+/*        for(int n = 0; n < 5; n++)
         {
             //accept connections
             newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
             if(newsockfd > 0)
                 break;
-        }
+        }*/
+        clilen = sizeof(cli_addr);
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if (newsockfd < 0) 
         {
-            printf("Error on Accept: %s", strerror(errno));
+            printf("Error on Accept: %s, %d", strerror(errno), errno);
             close(sockfd);
             exit(1);
         }
