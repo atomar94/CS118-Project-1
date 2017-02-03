@@ -22,6 +22,7 @@
 #include "file_fetcher.h"
 #include "http_res.h"
 
+bool TESTING = false; //false for debug info, true for submission info
 
 void error(std::string msg)
 {
@@ -70,14 +71,7 @@ int main(int argc, char *argv[])
     int counter = 0;
     while(true) {
 
-/*        for(int n = 0; n < 5; n++)
-        {
-            //accept connections
-            newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-            if(newsockfd > 0)
-                break;
-        }*/
-        clilen = sizeof(cli_addr);
+       clilen = sizeof(cli_addr);
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
         if (newsockfd < 0) 
         {
@@ -99,22 +93,28 @@ int main(int argc, char *argv[])
         //printf("Message Begins:\n");
         //printf("%s\n",buffer);
 
-        cout << " ----- ----- ----- " << endl;
-        cout << " ----- ----- ----- " << endl;
-        cout << "Request" << endl;
-        cout << "Request " << counter << endl;
-        cout << "Parser Identified Fields:" << endl;
-        cout << "Type:\t" << req.get_type() << endl;
-        cout << "Path:\t" << req.get_path() << endl;
-        cout << "Version\t" << req.get_version() << endl;
-        cout << "User Agent:\t" << req.get_user_agent() << endl;
-        cout << "Accepts HTML?\t" << (req.get_accept_html() ? "True" : "False") << endl;
-        cout << "Language\t" << req.get_lang() << endl;
-        cout << "Encoding\t" << req.get_encoding() << endl;
-        cout << "Conn.\t" << req.get_connection() << endl;
+        if(TESTING)
+        {
+            cout << " ----- ----- ----- " << endl;
+            cout << "Request" << endl;
+            cout << "Request " << counter << endl;
+            cout << "Parser Identified Fields:" << endl;
+            cout << "Type:\t" << req.get_type() << endl;
+            cout << "Path:\t" << req.get_path() << endl;
+            cout << "Version\t" << req.get_version() << endl;
+            cout << "User Agent:\t" << req.get_user_agent() << endl;
+            cout << "Accepts HTML?\t" << (req.get_accept_html() ? "True" : "False") << endl;
+            cout << "Language\t" << req.get_lang() << endl;
+            cout << "Encoding\t" << req.get_encoding() << endl;
+            cout << "Conn.\t" << req.get_connection() << endl;
+            cout << " ----- ----- -----" << endl;
 
-        cout << " ----- ----- -----" << endl;
-        //Form Response
+        }
+        else //for part A of spec just print request.
+        {
+            cout << stdstr << endl;
+        }
+        //Form Response   
         string msg_body;
         string status_code;
         string reason_phrase;
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
         }
        if(!ff.exists(req.get_path())) //doesnt exist: 404
         {
-            msg_body = "404, File not Found";
+            msg_body = "404 - File not Found";
             status_code = "404";
             reason_phrase = "Not Found";
         }

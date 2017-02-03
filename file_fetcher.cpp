@@ -7,6 +7,8 @@
 
 using namespace std;
 
+bool FF_TESTING = false;
+
 bool file_fetcher::exists(string f)
 {
     if( f == "/")
@@ -16,7 +18,7 @@ bool file_fetcher::exists(string f)
 
     ifstream ifs(f.c_str());
     bool retval = ifs.good();
-    if(!retval)
+    if(!retval && FF_TESTING)
         cout << f << " doesn't exist"<< endl;
     return ifs.good();
 }

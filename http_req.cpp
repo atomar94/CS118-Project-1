@@ -7,6 +7,8 @@
 
 using namespace std;
 
+bool REQ_TESTING = false; 
+
 HTTP_Req::HTTP_Req(std::string req)
 {
     //Variable Initialization
@@ -42,8 +44,10 @@ HTTP_Req::HTTP_Req(std::string req)
         else if( parse_connection(*it) == 0)
             continue;
         else if( (*it).length() > 3)
-            cout << "Found no field match for " + *it << endl;
-
+        {
+            if(REQ_TESTING)
+                cout << "Found no field match for " + *it << endl;
+        }
     }//for
 } //ctor
 
@@ -74,11 +78,9 @@ int HTTP_Req::parse_req_type(string h)
             case 0: if( *it == "GET" || *it == "POST")
                     {
                         req_type = *it;
-
                     }
                     else
                     {
-
                         req_type = "invalid";
                     }
                     break;
