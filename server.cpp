@@ -16,11 +16,14 @@
 #include <unistd.h>
 #include <cstring>
 #include <string>
-#include <iostream>
+#include <iostream> //read and write
+#include <utility> //pair
 
 #include "http_req.h"
-#include "file_fetcher.h"
 #include "http_res.h"
+#include "server.h"
+
+using namespace std;
 
 bool TESTING = false; //false for debug info, true for submission info
 
@@ -30,25 +33,18 @@ void error(std::string msg)
     exit(1);
 }
 
-int main(int argc, char *argv[])
+pair<string, string> Server::read_request()
 {
-    int sockfd, newsockfd, portno, pid;
+    int portno, pid;
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
 
-    if (argc < 2) {
-         fprintf(stderr,"ERROR, no port provided\n");
-         exit(1);
-    }
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);	//create socket
-    if (sockfd < 0) 
-    {
-        printf("Error opening socket: %s", strerror(errno));
-        exit(1);
-    }
-     memset((char *) &serv_addr, 0, sizeof(serv_addr));	//reset memory
+     memset((char *) &serv_addr, 0, sizeof(serv_addr));	
+
+     //
      //fill in address info
-     portno = atoi(argv[1]);
+     //
+     portno = 8000; 
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
@@ -56,58 +52,44 @@ int main(int argc, char *argv[])
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
               sizeof(serv_addr)) < 0)
      { 
-              error("ERROR on binding");
-              exit(1);
+         error("ERROR on binding");
+         return pair<string, string>("","");
      }
      if(listen(sockfd,5) != 0)    //5 simultaneous connection at most
      {
         error("Listen had an error");
-        exit(1);
+        return pair<string, string>("","");
      }
 
-
-    file_fetcher ff;
-    HTTP_Res res;
-    int counter = 0;
-    while(true) {
-
-       clilen = sizeof(cli_addr);
-        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0) 
-        {
-            printf("Error on Accept: %s, %d", strerror(errno), errno);
-            close(sockfd);
-            exit(1);
-        }
-        int n;
-   	    char buffer[512];
-   			 
-   	    memset(buffer, 0, 512);	//reset memory
+    clilen = sizeof(cli_addr);
+    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+    if (newsockfd < 0) 
+    {
+        printf("Error on Accept: %s, %d", strerror(errno), errno);
+        close(sockfd);
+        return pair<string, string>("","");
+    }
+    int n;
+    char buffer[512];
+  	memset(buffer, 0, 512);	//reset memory
       
- 		 //read client's message
-   	    n = read(newsockfd,buffer,511);
-   	    if (n < 0) error("ERROR reading from socket");
+ 	//read client's message
+   	n = read(newsockfd,buffer,511);
+   	if (n < 0) return pair<string, string>("","");
 
-        string stdstr = buffer;
-        HTTP_Req req(stdstr);
-        cout << " >" << req.get_type() << " Request for " << req.get_path() << endl;
+    string stdstr = buffer;
+    HTTP_Req req(stdstr);
+    cout << " >" << req.get_type() << " Request for " << req.get_path() << endl;
 
-        //Form Response   
-        string msg_body;
-        string response;
-
-
-        response = res.form_res_pkt(msg_body);
-
-        //reply to client
-   	    n = write(newsockfd, response.c_str(), response.length());
-   	    if (n < 0) error("ERROR writing to socket");
-         
-        counter++;     
-        close(newsockfd);//close connection 
-    } 
-    close(sockfd);
- 
-    return 0; 
+    return pair<string, string>(req.get_type(), req.get_path());
 }
+
+void Server::send_response(string msg)
+{
+    HTTP_Res res;
+    string response = res.form_res_pkt(msg);
+    write(newsockfd, response.c_str(), response.length());
+    close(newsockfd); 
+    close(sockfd);
+} 
 
