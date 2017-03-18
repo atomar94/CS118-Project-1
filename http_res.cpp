@@ -22,39 +22,25 @@ namespace patch
 
 }
 
-string HTTP_Res::form_header(string http_version, string status_code,
-                             string reason_phrase, string content_type,
-                             int content_len)
+string HTTP_Res::form_header(int content_len)
 {
-    bool valid = true;
-    if(status_code == "404" || status_code == "403" || status_code == "415")
-        valid = false; //error so the resp pkt is a bit different
-
     string retval;
-    retval += http_version + " ";
-    retval += status_code + " ";
-    retval += reason_phrase + "\r\n";
+    retval += "HTTP/1.1 ";
+    retval += "202 "; //status_code
+    retval += "Accepted\r\n";
     retval += "Connection: close\r\n";
-    retval += "Date: Fri, 3 Feb 2017 01:01:01 GMT\r\n";
-    retval += "Server: ACK-er Man (Ubuntu)\r\n";
-
-    if(valid)
-    {
-        retval += "Content-Type: "+ content_type + "\r\n";
-        retval += "Content-Length: " + patch::to_string(content_len) + "\r\n";
-    }
-
+    //retval += "Date: Fri, 3 Feb 2017 01:01:01 GMT\r\n";
+    retval += "Server: vcb1\r\n";
+    retval += "Content-Type: text\r\n";
+    retval += "Content-Length: " + patch::to_string(content_len) + "\r\n";
     retval += "\r\n"; //end of header indicator
     return retval;
 }
 
-string HTTP_Res::form_res_pkt(string http_version, string status_code,
-                              string reason_phrase, string msg_body,
-                              string content_type)
+string HTTP_Res::form_res_pkt(string msg_body)
 {
-    string header = form_header(http_version, status_code, 
-            reason_phrase, content_type, msg_body.length());
-   return header + msg_body; 
+    string header = form_header(msg_body.length());
+    return header + msg_body; 
 
 }
 

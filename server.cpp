@@ -90,60 +90,14 @@ int main(int argc, char *argv[])
 
         string stdstr = buffer;
         HTTP_Req req(stdstr);
-        //printf("Message Begins:\n");
-        //printf("%s\n",buffer);
+        cout << " >" << req.get_type() << " Request for " << req.get_path() << endl;
 
-        if(TESTING)
-        {
-            cout << " ----- ----- ----- " << endl;
-            cout << "Request" << endl;
-            cout << "Request " << counter << endl;
-            cout << "Parser Identified Fields:" << endl;
-            cout << "Type:\t" << req.get_type() << endl;
-            cout << "Path:\t" << req.get_path() << endl;
-            cout << "Version\t" << req.get_version() << endl;
-            cout << "User Agent:\t" << req.get_user_agent() << endl;
-            cout << "Accepts HTML?\t" << (req.get_accept_html() ? "True" : "False") << endl;
-            cout << "Language\t" << req.get_lang() << endl;
-            cout << "Encoding\t" << req.get_encoding() << endl;
-            cout << "Conn.\t" << req.get_connection() << endl;
-            cout << " ----- ----- -----" << endl;
-
-        }
-        else //for part A of spec just print request.
-        {
-            cout << stdstr << endl;
-        }
         //Form Response   
         string msg_body;
-        string status_code;
-        string reason_phrase;
         string response;
 
 
-       if( ff.exists( req.get_path() ) )
-        {
-            msg_body = ff.read(req.get_path()); //okay: 202
-            status_code = "202"; //accepted
-            reason_phrase = "Accepted";
-        }
-       if( ! ff.valid_type(req.get_path() ) ) //wrong type: 403
-        {
-            msg_body = "403 - Forbidden";
-            status_code = "403";
-            reason_phrase = "Forbidden";
-        }
-       if(!ff.exists(req.get_path())) //doesnt exist: 404
-        {
-            msg_body = "404 - File not Found";
-            status_code = "404";
-            reason_phrase = "Not Found";
-        }
-        
-
-
-        response = res.form_res_pkt(req.get_version(), status_code, 
-                reason_phrase, msg_body, req.mime());
+        response = res.form_res_pkt(msg_body);
 
         //reply to client
    	    n = write(newsockfd, response.c_str(), response.length());
