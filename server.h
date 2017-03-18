@@ -10,11 +10,12 @@ class Server
     public:
         //returns the http method as
         // <method-type> <path>
-        pair<string, string> read_request();
-        void send_response(string msg);
+        pair<string, string> read_request(int portnum);
 
     private:
         int sockfd; 
         int newsockfd;
+
+        void send_response(string msg);
 };
 

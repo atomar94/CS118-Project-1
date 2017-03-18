@@ -33,9 +33,9 @@ void error(std::string msg)
     exit(1);
 }
 
-pair<string, string> Server::read_request()
+pair<string, string> Server::read_request(int portnum)
 {
-    int portno, pid;
+    int pid;
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
 
@@ -44,10 +44,9 @@ pair<string, string> Server::read_request()
      //
      //fill in address info
      //
-     portno = 8000; 
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
-     serv_addr.sin_port = htons(portno);
+     serv_addr.sin_port = htons(portnum);
      
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
               sizeof(serv_addr)) < 0)
@@ -81,6 +80,8 @@ pair<string, string> Server::read_request()
     HTTP_Req req(stdstr);
     cout << " >" << req.get_type() << " Request for " << req.get_path() << endl;
 
+    send_response(""); //send an empty response
+    
     return pair<string, string>(req.get_type(), req.get_path());
 }
 
