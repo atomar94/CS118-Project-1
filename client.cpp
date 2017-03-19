@@ -42,6 +42,7 @@ void Client::write_to(string ip_addr, int portnum, string msg)
     if ( connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) != 0 )
     {
         //error
+        close(sockfd);
         return;
     }
 
@@ -49,6 +50,7 @@ void Client::write_to(string ip_addr, int portnum, string msg)
     if ( send(sockfd, msg.c_str(), msg.length(), 0) < 0)
     {
         //error
+        close(sockfd);
         return;
     }
     
@@ -56,6 +58,7 @@ void Client::write_to(string ip_addr, int portnum, string msg)
     if ( recv(sockfd, server_reply, 512, 0) < 0)
     {
         //error
+        close(sockfd);
         return;
     }
     string stdstr = server_reply;

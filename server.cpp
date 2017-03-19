@@ -30,8 +30,9 @@ bool TESTING = false; //false for debug info, true for submission info
 void error(std::string msg)
 {
     perror(msg.c_str());
-    exit(1);
+    //exit(1);
 }
+
 
 pair<string, string> Server::read_request(int portnum)
 {
@@ -43,28 +44,28 @@ pair<string, string> Server::read_request(int portnum)
     if(sockfd < 0)
     {
         //error on socket
+        error("Error on Socket.");
         return pair<string, string>("", "");
     }
     memset((char *) &serv_addr, 0, sizeof(serv_addr));	
 
-     //
-     //fill in address info
-     //
-     serv_addr.sin_family = AF_INET;
-     serv_addr.sin_addr.s_addr = INADDR_ANY;
-     serv_addr.sin_port = htons(portnum);
-     
-     if (bind(sockfd, (struct sockaddr *) &serv_addr,
-              sizeof(serv_addr)) < 0)
-     { 
-         error("ERROR on binding");
-         return pair<string, string>("","");
-     }
-     if(listen(sockfd,5) != 0)    //5 simultaneous connection at most
-     {
-        error("Listen had an error");
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(portnum);
+    
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,
+             sizeof(serv_addr)) < 0)
+    { 
+        error("ERROR on binding");
+        close(sockfd);
         return pair<string, string>("","");
-     }
+    }
+    if(listen(sockfd,5) != 0)    //5 simultaneous connection at most
+    {
+       error("Listen had an error");
+       close(sockfd);
+       return pair<string, string>("","");
+    }
 
     clilen = sizeof(cli_addr);
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
@@ -80,20 +81,24 @@ pair<string, string> Server::read_request(int portnum)
       
  	//read client's message
    	n = read(newsockfd,buffer,511);
-   	if (n < 0) return pair<string, string>("","");
-
+   	if (n < 0)
+    {
+        close(sockfd);
+        close(newsockfd);
+        error("error on client read.");
+        return pair<string, string>("","");
+    }
     string stdstr = buffer;
     HTTP_Req req(stdstr);
     cout << " >" << req.get_type() << " Request for " << req.get_path() << endl;
 
-    send_response(""); //send an empty response
+    send_response(""); //send an empty response.
     
     return pair<string, string>(req.get_type(), req.get_path());
 }
 
 void Server::send_response(string msg)
 {
-    cout << "cleaning up" << endl;
     HTTP_Res res;
     string response = res.form_res_pkt(msg);
     write(newsockfd, response.c_str(), response.length());
