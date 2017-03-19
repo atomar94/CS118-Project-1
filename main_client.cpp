@@ -10,6 +10,6 @@ int main()
 {
     Client c;
 
-    c.get("127.0.0.1", 8000, "/ayylmao");
+    c.get("127.0.0.1", 8000, "/identify");
 
 }
