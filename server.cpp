@@ -39,7 +39,13 @@ pair<string, string> Server::read_request(int portnum)
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
 
-     memset((char *) &serv_addr, 0, sizeof(serv_addr));	
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd < 0)
+    {
+        //error on socket
+        return pair<string, string>("", "");
+    }
+    memset((char *) &serv_addr, 0, sizeof(serv_addr));	
 
      //
      //fill in address info
@@ -87,6 +93,7 @@ pair<string, string> Server::read_request(int portnum)
 
 void Server::send_response(string msg)
 {
+    cout << "cleaning up" << endl;
     HTTP_Res res;
     string response = res.form_res_pkt(msg);
     write(newsockfd, response.c_str(), response.length());
